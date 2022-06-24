@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,13 +34,14 @@ public class DefaultGenerateService implements GenerateService {
             of = request.getCountGenerate();
         }
 
-        for (int i = 0; i < of; i++) {
+        for (int i = 0; i <= of; i++) {
             var inspectedKladr = ass.get(i);
             var code = codeSelectGenerator(inspectedKladr.getCode());
             generateValue(inspectedKladr, code);
             StringBuilder builder = new StringBuilder();
             builder.append("Generate: ").append(i).append(" of: ").append(of).append(" / ").append(inspectedKladr.getName());
             System.out.println(builder);
+            entityManager.flush();
 
         }
     }
@@ -48,7 +50,7 @@ public class DefaultGenerateService implements GenerateService {
     void generateValue(Kladr kladr, String code) {
         List<Street> streets = entityManager.createQuery("SELECT s from Street s where s.code like :value", Street.class)
                 .setParameter("value", code).getResultList();
-        String city = ";"+kladr.getSocr() + ". " + kladr.getName();
+        String city = ";" + kladr.getSocr() + ". " + kladr.getName();
 
         for (int i = 0; i < streets.size(); i++) {
             var street = streets.get(i);
@@ -57,8 +59,8 @@ public class DefaultGenerateService implements GenerateService {
                     .city(city)
                     .streets(streetValue)
                     .build();
-            //  System.out.println(value);
-            flush(value);
+
+             flush(value);
 
         }
 
@@ -68,7 +70,6 @@ public class DefaultGenerateService implements GenerateService {
     @Transactional
     void flush(Value value) {
         entityManager.persist(value);
-        entityManager.flush();
     }
 
     private String codeSelectGenerator(String startCode) {
