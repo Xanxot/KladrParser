@@ -54,6 +54,8 @@ public class DefaultGenerateService implements GenerateService {
 
         System.out.println("parse complete ... Count values: " + count + valueList.size());
         startToPersist();
+        valueList = new ArrayList<>();
+        System.gc();
         System.out.println("all done.");
     }
 
